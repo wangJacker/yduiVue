@@ -1,0 +1,247 @@
+/**
+ * @authors Wang Ye (wangjacker@163.com)
+ * @date    2018-08-02 13:46:10
+ * @copyright CH Web Company
+ */
+
+// 字体大小
+@fontSize-18 : 0.18rem;
+@fontSize-20 : 0.2rem;
+@fontSize-22 : 0.22rem;
+@fontSize-24: 0.24rem;
+@fontSize-26: 0.26rem;
+@fontSize-28: 0.28rem;
+@fontSize-30: 0.3rem;
+@fontSize-34: 0.34rem;
+// 使用flexible的字体大小
+@size12: 12px;
+@size13: 13px;
+@size14: 14px;
+@size15: 15px;
+@size16: 16px;
+@size17: 17px;
+@size18: 18px;
+@size19: 19px;
+@size20: 20px;
+@size21: 21px;
+@size22: 22px;
+@size23: 23px;
+@size24: 24px;
+@size25: 25px;
+@size26: 26px;
+@size27: 27px;
+@size28: 28px;
+@size29: 29px;
+@size30: 30px;
+// 图片路径
+@images: "../../base/images";
+
+// 颜色
+.prefix(@css, @value) {
+  .key-css(@pre) {
+    @key: ~"@{pre}@{css}";
+    @{key}: @value;
+  }
+
+  .key-css("-moz-");
+  .key-css("-webkit-");
+  .key-css("-o-");
+  .key-css("-ms-");
+  .key-css("");
+}
+
+.preflex(@css, @value) {
+  .key-cs(@pre) {
+    @{css}:~"@{pre}@{value}";
+  }
+
+  .key-cs("-moz-");
+  .key-cs("-webkit-");
+  .key-cs("-o-");
+  .key-cs("-ms-");
+  .key-cs("");
+}
+
+.display(@t) {
+  .preflex(display, @t);
+}
+
+.transform(@key, @value) {
+  .prefix(@key, @value)
+}
+
+// 1px边框处理
+@borderColor: #c7c7c7;
+
+.setTopLine(@c: @borderColor) {
+  content: " ";
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  height: 1px;
+  border-top: 1px solid @c;
+  color: @c;
+  transform-origin: 0 0;
+  transform: scaleY(0.5);
+}
+
+.setBottomLine(@c: @borderColor) {
+  content: " ";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  height: 1px;
+  border-bottom: 1px solid @c;
+  color: @c;
+  transform-origin: 0 100%;
+  transform: scaleY(0.5);
+}
+
+.setLeftLine(@c: @borderColor) {
+  content: " ";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  bottom: 0;
+  border-left: 1px solid @c;
+  color: @c;
+  transform-origin: 0 0;
+  transform: scaleX(0.5);
+}
+
+.setRightLine(@c: @borderColor) {
+  content: " ";
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 1px;
+  bottom: 0;
+  border-right: 1px solid @c;
+  color: @c;
+  transform-origin: 100% 0;
+  transform: scaleX(0.5);
+}
+
+.setLine(@c: @borderColor) {
+  content: " ";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 200%;
+  border: 1px solid @c;
+  color: @c;
+  height: 200%;
+  transform-origin: left top;
+  transform: scale(0.5);
+}
+
+.border,
+.borderTop,
+.borderBottom,
+.borderTopBottom,
+.borderLeft,
+.borderRight {
+  position: relative;
+}
+
+.border {
+  &:before {
+    .setLine();
+  }
+}
+
+.borderTop {
+  &:before {
+    .setTopLine();
+  }
+}
+
+.borderBottom {
+  &:after {
+    .setBottomLine();
+  }
+}
+
+.borderTopBottom {
+  &:before {
+    .setTopLine();
+  }
+
+  &:after {
+    .setBottomLine();
+  }
+}
+
+.borderLeft {
+  &:before {
+    .setLeftLine();
+  }
+}
+
+.borderRight {
+  &:after {
+    .setRightLine();
+  }
+}
+
+// 背景图处理
+@min: '@2x.png';
+@max: '@3x.png';
+
+.bg-image(@url) {
+  @media (-webkit-min-device-pixel-ratio: 3), (min-device-pixel-ratio: 3) {
+    background-image:url('@{url}@{max}');
+  }
+
+  background-image:url('@{url}@{min}');
+}
+
+// 字体处理
+.font-size(@val) {
+  font-size: @val;
+
+  [data-dpr="2"] & {
+    font-size: 2*@val
+  }
+
+  [data-dpr="3"] & {
+    font-size: 3*@val
+  }
+
+  [data-dpr="4"] & {
+    font-size: 4*@val
+  }
+}
+
+// 行高处理
+.line-height(@val) {
+  line-height: @val;
+
+  [data-dpr="2"] & {
+    line-height: 2*@val
+  }
+
+  [data-dpr="3"] & {
+    line-height: 3*@val
+  }
+
+  [data-dpr="4"] & {
+    line-height: 4*@val
+  }
+}
+
+@color-theme: #e61e3f; // 主色调
+@color-line: #e5e5e5; // 用于列表分割线条
+@color-bg: #f5f5f5; // 用于背景底色浅灰色
+@color-pic: #f2f2f5; // 用于图片未加载出时的默认占位图，纯色展示
+@color-font-normal: #333; // 一级字体，最常用的黑色
+@color-font-tip: #999; // 页面中最常用的灰色（提示性文字、说明性质的暗文、搜索结果为空等等）（若过程中有这个颜色#a6a6a6 改用用999999的颜色~~~）
+@color-font-other: #666666; // 极少数二级文字
+@color-white: #fff;
+// 部分高度规范
+@height-top: 0.4rem; // 顶部状态栏 40px
+@height-88: 0.88rem; // 顶部导航栏 搜索 部分其它页面内的列表（订单详情、下单页面、等）88px
+@height-98: 0.98rem; // 底部工具栏 导航 大众常规性列表 98px

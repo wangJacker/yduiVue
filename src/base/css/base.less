@@ -1,0 +1,58 @@
+/**
+ * @authors Wang Ye (wangjacker@163.com)
+ * @date    2018-08-02 14:58:00
+ * @copyright CH Web Company
+ */
+
+.prefix(@css, @value) {
+    .key-css(@pre) {
+        @key: ~"@{pre}@{css}";
+        @{key}: @value;
+    }
+    .key-css("-moz-");
+    .key-css("-webkit-");
+    .key-css("-o-");
+    .key-css("-ms-");
+    .key-css("");
+}
+
+.preflex(@css, @value) {
+    .key-cs(@pre) {
+        @{css}:~"@{pre}@{value}";
+    }
+    .key-cs("-moz-");
+    .key-cs("-webkit-");
+    .key-cs("-o-");
+    .key-cs("-ms-");
+    .key-cs("");
+}
+
+.display(@t) {
+    .preflex(display, @t);
+}
+
+.transform(@key, @value) {
+    .prefix(@key, @value)
+}
+// 字体大小
+@fontSize-18 : 0.18rem;
+@fontSize-20 : 0.2rem;
+@fontSize-22 : 0.22rem;
+@fontSize-24: 0.24rem;
+@fontSize-26: 0.26rem;
+@fontSize-28: 0.28rem;
+@fontSize-30: 0.3rem;
+@fontSize-34: 0.34rem;
+// 颜色
+@color-theme: #e61e3f;          // 主色调
+@color-line: #e5e5e5;         // 用于列表分割线条
+@color-bg: #f5f5f5;           // 用于背景底色浅灰色
+@color-pic: #f2f2f5;          // 用于图片未加载出时的默认占位图，纯色展示
+@color-font-normal: #333;     // 一级字体，最常用的黑色
+@color-font-tip: #999;        // 页面中最常用的灰色（提示性文字、说明性质的暗文、搜索结果为空等等）（若过程中有这个颜色#a6a6a6 改用用999999的颜色~~~）
+@color-font-other: #666666;    // 极少数二级文字
+@color-white: #fff;
+// 部分高度规范
+@height-top: 0.4rem;          // 顶部状态栏 40px
+@height-88: 0.88rem;     // 顶部导航栏 搜索 部分其它页面内的列表（订单详情、下单页面、等）88px
+@height-98: 0.98rem;      // 底部工具栏 导航 大众常规性列表 98px
