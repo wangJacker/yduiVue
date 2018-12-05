@@ -13,7 +13,7 @@ export default new Router({
             name: 'index',
             redirect: '/index',
             meta: {
-                title: "优礼微信商城"
+                title: "微信商城"
             }
         },
         {
@@ -21,7 +21,7 @@ export default new Router({
             name: 'indexhome',
             component: Index,
             meta: {
-                title: "优礼微信商城"
+                title: "微信商城"
             }
         }
     ]

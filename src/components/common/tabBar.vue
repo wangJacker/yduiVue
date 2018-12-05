@@ -3,11 +3,11 @@
         <ul class="tabList">
             <li class="tabItem" :class="{selectedHome:selectedHome}">
                 <span class="icon"></span>
-                <a href="javascript:void(0)">优礼商城</a>
+                <a href="javascript:void(0)">商城</a>
             </li>
             <li class="tabItem" :class="{selectedClass:selectedClass}">
                 <span class="icon"></span>
-                <a href="javascript:void(0)">礼品分类</a>
+                <a href="javascript:void(0)">分类</a>
             </li>
             <li class="tabItem" :class="{selectedCart:selectedCart}">
                 <span class="icon"></span>
@@ -32,13 +32,13 @@ export default {
             type: Boolean,
             default: false
         },
-        selectedClass:{
+        selectedClass: {
             type: Boolean,
             default: false
         },
-        selectedHome:{
+        selectedHome: {
             type: Boolean,
-            default: true
+            default: false
         }
     }
 }
@@ -133,6 +133,7 @@ export default {
                 color: #351009;
             }
         }
+
         .tabItem.selectedHome {
             span {
                 background: url("@{images}/store_selected.png") center no-repeat;

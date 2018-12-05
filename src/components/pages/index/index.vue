@@ -30,24 +30,55 @@
                 </li>
             </ul>
         </div>
-        <tab-bar slot='tabbar'></tab-bar>
+        <div class="goodsContainer">
+            <h3 class="title">热销单品</h3>
+            <yd-infinitescroll :callback="loadMore" ref="scrollLoadeMore">
+                <goods-list :goodsList="goods" slot='list'></goods-list>
+                <span slot="doneTip">已经加载完了...</span>
+            </yd-infinitescroll>
+        </div>
+        <tab-bar slot='tabbar' :selectedHome='true'></tab-bar>
     </yd-layout>
 </template>
 <script type="text/javascript">
 import naverBar from "@/components/common/naverBar";
 import tabBar from "@/components/common/tabBar";
+import goodsList from "@/components/common/goodsList";
 import { carouselData } from '@/mock/mockData.js';
+import { goodsData } from "@/mock/mockData";
+import axios from "axios";
 export default {
     name: "index",
-    components: { naverBar, tabBar },
+    components: { naverBar, tabBar, goodsList },
     data: function() {
         return {
-            // title:"优礼微信商城"
-            // imgArry: []
+            page: 1,
+            pageSize: 10,
+            goods: [],
+
         }
     },
     created() {
         this.imgArry = carouselData.imgData;
+        this.goods = goodsData.goods;
+    },
+    methods: {
+        loadMore() {
+            axios.get('/gets/goodsData').then(function(response) {
+                const _list = response.data.goods;
+                this.goods = [...this.goods, ..._list];
+                if (_list.length < this.pageSize || this.page == 3) {
+                    /* 所有数据加载完毕 */
+                    this.$refs.scrollLoadeMore.$emit('ydui.infinitescroll.loadedDone');
+                    return;
+                }
+
+                /* 单次请求数据完毕 */
+                this.$refs.scrollLoadeMore.$emit('ydui.infinitescroll.finishLoad');
+
+                this.page++;
+            }.bind(this));
+        }
     }
 }
 
@@ -78,24 +109,29 @@ export default {
         }
     }
 }
-.nav{
-    margin-top:0.16rem;
-    padding:0 0.24rem;
-    .navList{
+
+.nav {
+    margin-top: 0.16rem;
+    padding: 0 0.24rem;
+
+    .navList {
         padding: 0.32rem 0.48rem;
         background: #fff;
         display: flex;
         justify-content: space-between;
-        .navItem{
-            span{
+
+        .navItem {
+            span {
                 display: block;
-                img{
+
+                img {
                     display: block;
                     width: 1.12rem;
                     height: 1.12rem;
                 }
             }
-            b{
+
+            b {
                 display: block;
                 text-align: center;
                 font-size: 0.28rem;
@@ -105,4 +141,17 @@ export default {
         }
     }
 }
+
+.goodsContainer {
+    margin-top: 0.48rem;
+    padding: 0 0.24rem;
+
+    .title {
+        font-size: 0.3rem;
+        color: #351009;
+        line-height: 0.42rem;
+        margin-bottom: 0.08rem;
+    }
+}
+
 </style>
