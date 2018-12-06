@@ -37,6 +37,11 @@ export const listData = Mock.mock({
         'name': "@ctitle(8,12)"
     }]
 })
+export const menuData = Mock.mock({
+    'menu|26': [{
+        'name': "@ctitle(4,8)",
+    }]
+})
 Mock.mock("/gets/listData", "get", {
     "list|20": [{
         'name': "@ctitle(8,12)"

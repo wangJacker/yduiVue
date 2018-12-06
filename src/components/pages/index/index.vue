@@ -46,6 +46,7 @@ import tabBar from "@/components/common/tabBar";
 import goodsList from "@/components/common/goodsList";
 import { carouselData } from '@/mock/mockData.js';
 import { goodsData } from "@/mock/mockData";
+import { LOADEMORE } from "@/base/url";
 import axios from "axios";
 export default {
     name: "index",
@@ -64,7 +65,7 @@ export default {
     },
     methods: {
         loadMore() {
-            axios.get('/gets/goodsData').then(function(response) {
+            axios.get(LOADEMORE).then(function(response) {
                 const _list = response.data.goods;
                 this.goods = [...this.goods, ..._list];
                 if (_list.length < this.pageSize || this.page == 3) {

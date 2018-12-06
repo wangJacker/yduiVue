@@ -2,12 +2,16 @@
     <div class="footer">
         <ul class="tabList">
             <li class="tabItem" :class="{selectedHome:selectedHome}">
-                <span class="icon"></span>
-                <a href="javascript:void(0)">商城</a>
+                <router-link to='/'>
+                    <span class="icon"></span>
+                    <a href="javascript:void(0)">商城</a>
+                </router-link>
             </li>
             <li class="tabItem" :class="{selectedClass:selectedClass}">
-                <span class="icon"></span>
-                <a href="javascript:void(0)">分类</a>
+                <router-link to='/Classify'>
+                    <span class="icon"></span>
+                    <a href="javascript:void(0)">分类</a>
+                </router-link>
             </li>
             <li class="tabItem" :class="{selectedCart:selectedCart}">
                 <span class="icon"></span>
