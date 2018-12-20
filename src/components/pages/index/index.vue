@@ -59,6 +59,10 @@ export default {
 
         }
     },
+    mounted() {
+        let scrollElement = document.getElementById("scrollView");
+        this.overflowScroll(scrollElement);
+    },
     created() {
         this.imgArry = carouselData.imgData;
         this.goods = goodsData.goods;

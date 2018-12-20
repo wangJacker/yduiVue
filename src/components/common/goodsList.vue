@@ -1,6 +1,6 @@
 <template>
     <ul class="goodsList">
-        <li class="goodsItem" v-for="(item,index) in goodsList" :key="index">
+        <li class="goodsItem" v-for="(item,index) in goodsList" @click="goGoodsDetal(item)" :key="index">
             <img :src="item.src">
             <p>{{item.name}}</p>
             <span class="price">{{item.price}}</span>
@@ -10,7 +10,12 @@
 <script type="text/javascript">
 export default {
     name: 'goodsList',
-    props: ["goodsList"]
+    props: ["goodsList"],
+    methods: {
+        goGoodsDetal(item) {
+            console.log(item)
+        }
+    }
 }
 
 </script>
@@ -49,8 +54,8 @@ export default {
             font-size: 0.28rem;
             color: #AE2309;
             line-height: 0.32rem;
-        }
-    }
+        }}
+
 }
 
 </style>
