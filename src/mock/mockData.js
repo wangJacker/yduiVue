@@ -55,6 +55,12 @@ Mock.mock("/gets/goodsData", "get", {
         "price|100-400.1-2": 100,
     }]
 })
+Mock.mock("/gets/classfiy", "get", {
+    'goods|20': [{
+        'name': "@ctitle(3,16)",
+        "src": "@image('64x64',#b7ef7c)",
+    }]
+})
 Mock.setup({
     timeout: 4000
 })

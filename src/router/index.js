@@ -4,6 +4,7 @@ import HelloWorld from '@/components/HelloWorld';
 import WechatTitle from "vue-wechat-title";
 const Index = () => import('@/components/pages/index/index');
 const Classify = () => import('@/components/pages/classify/classify');
+const Carts = () => import('@/components/pages/carts/carts');
 
 Vue.use(Router);
 Vue.use(WechatTitle);
@@ -31,6 +32,14 @@ export default new Router({
             component: Classify,
             meta: {
                 title: "商品分类"
+            }
+        },
+        {
+            path: '/Carts',
+            name: 'Carts',
+            component: Carts,
+            meta: {
+                title: "购物车"
             }
         }
     ]

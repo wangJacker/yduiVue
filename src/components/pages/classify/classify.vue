@@ -2,18 +2,20 @@
     <div class="section">
         <naver-bar></naver-bar>
         <div class="classifyContainer">
-            <div class="menuContainer" ref="scrollMenu">
+            <div class="menuContainer" ref='scrollMenu'>
                 <ul class="menuList">
                     <li class="menuItem" :class="{cur:index==current}" v-for="(item, index) in menuData" :key="index" @click="handleClick(index,$event)">
                         <p>{{item.name}}</p>
                     </li>
                 </ul>
             </div>
-            <ul class="menuGoods">
-                <li class="goods">
-                    <img src="https://via.placeholder.com/64x64">
-                    <p>除味皂除味皂除味皂</p>
-                </li>
+            <ul class="menuGoods" ref='menuGoods'>
+                <template v-for="(item, index) in classify">
+                    <li class="goods">
+                        <img :src="item.src">
+                        <p>{{item.name}}</p>
+                    </li>
+                </template>
             </ul>
         </div>
         <tab-bar :selectedClass='true'></tab-bar>
@@ -24,6 +26,8 @@ import naverBar from "@/components/common/naverBar";
 import tabBar from "@/components/common/tabBar";
 import { menuData } from "@/mock/mockData";
 import BScroll from "better-scroll";
+import { CLASSFILY } from '@/base/url';
+import axios from 'axios';
 export default {
     name: "classify",
     components: { naverBar, tabBar },
@@ -35,13 +39,13 @@ export default {
             current: 0,
             scroll: "",
             scrollContainer: "",
-            maxScrollY: ""
+            maxScrollY: "",
+            classify: []
         }
     },
     mounted() {
-        let scrollElement = this.$refs.scrollMenu;
-        this.overflowScroll(scrollElement);
-        console.log(this.$refs.scrollMenu)
+        this.overflowScroll(this.$refs.scrollMenu);
+        this.overflowScroll(this.$refs.menuGoods);
         // 这里的 this.$nextTick 是一个异步函数，为了确保 DOM 已经渲染
         this.$nextTick(() => {
             this.scroll = new BScroll(this.$refs.scrollMenu, {
@@ -51,6 +55,7 @@ export default {
             this.scrollContainer = this.$refs.scrollMenu.clientHeight;
             this.maxScrollY = this.scroll.maxScrollY;
         })
+        this.init();
     },
     computed: {
         maxHeight() {
@@ -58,7 +63,7 @@ export default {
         }
     },
     methods: {
-        handleClick(index, e) {
+        async handleClick(index, e) {
             this.current = index;
             let $this = e.currentTarget;
             // 获取当前元素距离容器顶部的距离
@@ -77,6 +82,23 @@ export default {
             } else {
                 this.scroll.scrollTo(0, -(slideCenter - this.scrollContainer / 2), 500);
             }
+            this.$dialog.loading.open('正在加载中...');
+            //获取右边值
+            await axios.get(CLASSFILY).then(function(data) {
+                this.classify = data.data.goods;
+                // console.log(data.data.goods)
+            }.bind(this))
+            this.$dialog.loading.close();
+            this.$dialog.toast({
+                mes: '加载成功！',
+                icon: 'success'
+            })
+            this.$refs.menuGoods.scrollTop = 0;
+        },
+        init() {
+            axios.get(CLASSFILY).then(function(data) {
+                this.classify = data.data.goods;
+            }.bind(this))
         }
     }
 }
@@ -143,8 +165,34 @@ export default {
         flex: 1;
         overflow: hidden;
         background: #fff;
+        display: flex;
+        align-content: flex-start;
+        -webkit-align-content: flex-start;
+        flex-flow: wrap;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 0 0.13rem;
 
-        .goods {}
+        .goods {
+            padding: 0.48rem 0 0 0.32rem;
+
+            img {
+                width: 1.28rem;
+                height: 1.28rem;
+                display: block;
+                border: none;
+            }
+
+            p {
+                line-height: 0.34rem;
+                width: 1.28rem;
+                height: 0.68rem;
+                overflow: hidden;
+                margin-top: 0.16rem;
+                font-size: 0.24rem;
+                color: #351009;
+            }
+        }
     }
 }
 

@@ -77,7 +77,6 @@ export default {
                     this.$refs.scrollLoadeMore.$emit('ydui.infinitescroll.loadedDone');
                     return;
                 }
-
                 /* 单次请求数据完毕 */
                 this.$refs.scrollLoadeMore.$emit('ydui.infinitescroll.finishLoad');
 

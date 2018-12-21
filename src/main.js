@@ -9,6 +9,7 @@ import { Layout } from 'vue-ydui/dist/lib.rem/layout';
 import { Button, ButtonGroup } from 'vue-ydui/dist/lib.rem/button';
 import { Slider, SliderItem } from 'vue-ydui/dist/lib.rem/slider';
 import { InfiniteScroll } from 'vue-ydui/dist/lib.rem/infinitescroll';
+import { Confirm, Alert, Toast, Notify, Loading } from 'vue-ydui/dist/lib.rem/dialog';
 import StopRolling from "@/base/js";
 Vue.component(Layout.name, Layout);
 Vue.component(Button.name, Button);
@@ -18,8 +19,13 @@ Vue.component(SliderItem.name, SliderItem);
 Vue.component(InfiniteScroll.name, InfiniteScroll);
 Vue.use(StopRolling);
 Vue.config.productionTip = false
-
-/* eslint-disable no-new */
+Vue.prototype.$dialog = {
+    confirm: Confirm,
+    alert: Alert,
+    toast: Toast,
+    notify: Notify,
+    loading: Loading,
+};
 new Vue({
     el: '#app',
     router,

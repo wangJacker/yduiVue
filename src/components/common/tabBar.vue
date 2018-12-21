@@ -14,8 +14,10 @@
                 </router-link>
             </li>
             <li class="tabItem" :class="{selectedCart:selectedCart}">
-                <span class="icon"></span>
-                <a href="javascript:void(0)">购物车</a>
+                <router-link to='/carts'>
+                    <span class="icon"></span>
+                    <a href="javascript:void(0)">购物车</a>
+                </router-link>
             </li>
             <li class="tabItem" :class="{selectedMy:selectedMy}">
                 <span class="icon"></span>

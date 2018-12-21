@@ -8,3 +8,4 @@
 
 //首页
 export const LOADEMORE = '/gets/goodsData';
+export const CLASSFILY = '/gets/classfiy';
