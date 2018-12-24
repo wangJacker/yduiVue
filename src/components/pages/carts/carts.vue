@@ -2,8 +2,8 @@
     <yd-layout>
         <naver-bar slot='navbar' :showIcon='edit'></naver-bar>
         <ul class="goods-list">
-            <li class="goodsItem" v-for="(item, index) in listInfo" :key='item.id'>
-                <div class="itemContainer">
+            <li ref='goodsItem' class="goodsItem" v-for="(item, index) in listInfo" :key='item.id'>
+                <div class="itemContainer" ref='itemContainer' @touchstart='touchstart($event,index)' @touchmove='touchmove($event,index)' @touchend='touchend($event,index)'>
                     <div class="left">
                         <input type="checkbox" :value='index' v-model='checkedBoxList'>
                         <span class='border' @click='handleChecked(index)'>
@@ -18,12 +18,12 @@
                             <p class="price">{{item.shopPrice}}</p>
                             <div class="spinner">
                                 <span class='border' @click="reduce(index)">-</span>
-                                <input type="text" name="" @keyup='handleChange(index,$event)' v-model.number='item.shopCount'>
+                                <input type="text" name="" @keyup='handleChange(index,$event)' v-model='item.shopCount' @blur='blurChange(index,$event)'>
                                 <span class='border' @click="add(index)">+</span>
                             </div>
                         </div>
                     </div>
-                    <div class="deletebox">
+                    <div class="deletebox" ref='deletebox'>
                         <span>删除</span>
                     </div>
             </li>
@@ -34,6 +34,7 @@
 <script type="text/javascript">
 import naverBar from "@/components/common/naverBar";
 import tabBar from "@/components/common/tabBar";
+import Bscroll from 'better-scroll';
 
 export default {
     name: 'carts',
@@ -48,12 +49,24 @@ export default {
                 { id: 4, shopName: "男装4", shopPrice: 4000, shopCount: 0 },
                 { id: 5, shopName: "男装5", shopPrice: 5000, shopCount: 0 },
             ],
+            //水平移动的距离
+            horizontalX: 0,
+            //垂直移动的距离
+            verticalY: 0,
+            //移动的方向direction 0 为初始 1 为水平 2为垂直
+            direction: 0,
+            //目标对象的位置
+            emitPostion: 0,
+            //删除按钮的宽度
+            buttonWidth: 0
         }
     },
     components: { naverBar, tabBar },
     mounted() {
         let scroll = document.getElementById('scrollView');
         this.overflowScroll(scroll);
+        //获取删除按钮的宽度
+        this.buttonWidth = this.$refs.deletebox[0].getBoundingClientRect().width;
     },
     methods: {
         handleChecked(value) {
@@ -69,18 +82,126 @@ export default {
                 this.listInfo[index].shopCount = 0;
             } else {
                 this.listInfo[index].shopCount--;
-
             }
         },
         add(index) {
             this.listInfo[index].shopCount++;
         },
-        handleChange(index, e) {
+        handleChange(index, e, oldNum) {
             if (e.target.value.length == 1) {
                 this.listInfo[index].shopCount = e.target.value.replace(/[^1-9]/g, '')
             } else {
                 this.listInfo[index].shopCount = e.target.value.replace(/\D/g, '')
-                console.log(e.target.value)
+            }
+        },
+        blurChange(index, e) {
+            if (e.target.value.length < 1) {
+                this.listInfo[index].shopCount = 1;
+            }
+            if (e.target.value.length == 1) {
+                this.listInfo[index].shopCount = e.target.value.replace(/[^1-9]/g, '')
+            } else {
+                this.listInfo[index].shopCount = e.target.value.replace(/\D/g, '')
+            }
+        },
+        touchstart(e, index) {
+            e = e || event;
+            //记录初始位置X
+            this.horizontalX = e.targetTouches[0].pageX;
+            //记录初始位置Y
+            this.verticalY = e.targetTouches[0].pageY;
+            this.$refs.itemContainer.forEach((item, indx) => {
+                if (indx !== index) {
+                    this.$refs.itemContainer[indx].style.transition = "all 0.2s";
+                    this.$refs.itemContainer[indx].style.WebkitTransform = "translateX(" + 0 + "px)";
+                }
+            });
+            //获取transition的距离
+            this.emitPostion = (this.$refs.itemContainer[index].style.WebkitTransform.replace(/translateX\(/g, "").replace(/px\)/g, "")) * 1;
+        },
+        touchmove(e, index) {
+            e = e || event;
+            if (this.emitPostion === 0) {
+                //这个是初始位置的时候
+                switch (this.direction) {
+                    case 0:
+                        this.calculateDirection(e);
+                        break;
+                    case 1:
+                        e.preventDefault();
+                        // 水平滑动距离
+                        this.moveX = e.targetTouches[0].pageX;
+                        this.X = this.moveX - this.horizontalX;
+                        if (this.X >= 0) {
+                            // 向右滑动表示
+                            this.$refs.itemContainer[index].style.WebkitTransform = "translateX(" + 0 + "px)";
+                        } else if (this.X < 0) {
+                            // 向左滑动
+                            let left = Math.abs(this.X);
+                            if (left > this.buttonWidth) {
+                                left = this.buttonWidth;
+                            }
+                            this.$refs.itemContainer[index].style.WebkitTransform = "translateX(" + -left + "px)";
+                        }
+                        break;
+                    case 2:
+                        break;
+                }
+            } else if (this.emitPostion < 0) {
+                // 以及滑动开了
+                switch (this.direction) {
+                    case 0:
+                        this.calculateDirection(e);
+                        break;
+                    case 1:
+                        e.preventDefault();
+                        this.moveX = e.targetTouches[0].pageX;
+                        this.X = this.moveX - this.horizontalX;
+                        if (this.X >= 0) {
+                            // 向右滑动表示
+                            let right = -this.buttonWidth + Math.abs(this.X);
+                            if (right > 0) {
+                                right = 0;
+                            }
+                            this.$refs.itemContainer[index].style.WebkitTransform = "translateX(" + right + "px)";
+                        } else if (this.X < 0) {
+                            // 向左滑动
+                            this.$refs.itemContainer[index].style.WebkitTransform = "translateX(" + -this.buttonWidth + "px)";
+                        }
+                        break;
+                    case 2:
+                        break;
+                }
+            }
+        },
+        touchend(e, index) {
+            e = e || event;
+            this.emitPostion = (this.$refs.itemContainer[index].style.WebkitTransform.replace(/translateX\(/g, "").replace(/px\)/g, "")) * 1;
+            if (this.emitPostion > -this.buttonWidth / 2) {
+                // 超过一半归0
+                // this.$refs.itemContainer[index].style.transition = "all 0.2s";
+                this.$refs.itemContainer[index].style.WebkitTransform = "translateX(" + 0 + "px)";
+                this.$refs.itemContainer[index].style.transition = "all 0.1s";
+                this.emitPostion = 0;
+            } else {
+                // this.$refs.itemContainer[index].style.transition = "all 0.2s";
+                this.$refs.itemContainer[index].style.WebkitTransform = "translateX(" + -this.buttonWidth + "px)";
+                this.$refs.itemContainer[index].style.transition = "all 0.1s";
+                this.emitPostion = -this.buttonWidth;
+            }
+            // 将移动方向归0初始化
+            this.direction = 0;
+        },
+        calculateDirection(e) {
+            this.moveX = e.targetTouches[0].pageX;
+            // 垂直移动距离
+            this.moveY = e.targetTouches[0].pageY;
+            this.X = Math.abs(this.moveX - this.horizontalX);
+            this.Y = Math.abs(this.moveY - this.verticalY);
+            if (this.X > this.Y) {
+                this.direction = 1;
+            } else {
+                this.direction = 2;
             }
         }
     }
@@ -95,8 +216,13 @@ export default {
     .goodsItem {
         position: relative;
         margin-top: 0.24rem;
+        height: 2.48rem;
+        overflow: hidden;
+        // text-align: right;
 
         .itemContainer {
+            float: right;
+            transform: translateZ(100px);
             display: flex;
             align-content: center;
             align-items: center;
@@ -104,10 +230,11 @@ export default {
             background: #fff;
             height: 2.48rem;
             position: absolute;
+            width: 100%;
             left: 0;
             top: 0;
-            z-index: 1;
-            width: 100%;
+            overflow: hidden;
+
             .left {
                 input[type='checkbox'] {
                     display: none;
@@ -206,13 +333,21 @@ export default {
         }
 
         .deletebox {
-            width: 1.2rem;
-            height: 100%;
-            background: red;
-            position: absolute;
-            top: 0;
-            right: 0;
-            z-index: -12232;
+            width: 1.6rem;
+            height: 99%;
+            background: #AE2309;
+            text-align: center;
+            float: right;
+            margin-right: 1px;
+
+            span {
+                display: block;
+                width: 100%;
+                height: 100%;
+                color: #fff;
+                line-height: 2.48rem;
+                font-size: 0.28rem;
+            }
         }
 
     }
