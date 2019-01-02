@@ -3,16 +3,27 @@
         <span class="goBack"></span>
         <h3 class="title">{{$route.meta.title}}</h3>
         <span v-if="showIcon === 'search'" class="search"></span>
-        <span v-else-if="showIcon === 'edit'" class="edit">编辑</span>
+        <span v-else-if="showIcon === 'edit'" class="edit" @click="changeDeleteAll">{{eidt}}</span>
     </div>
 </template>
 <script type="text/javascript">
 export default {
     name: "naverBar",
+    data() {
+        return {
+            eidt: '编辑'
+        }
+    },
     props: {
         showIcon: {
             type: String,
             default: 'search'
+        }
+    },
+    methods: {
+        changeDeleteAll(num) {
+            this.eidt = this.eidt == '编辑' ? '完成' : "编辑";
+            this.$emit('changeDelete');
         }
     }
 }

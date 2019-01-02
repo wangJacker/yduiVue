@@ -1,33 +1,61 @@
 <template>
     <yd-layout>
-        <naver-bar slot='navbar' :showIcon='edit'></naver-bar>
+        <naver-bar slot='navbar' :showIcon='edit' @changeDelete='changeDelete'></naver-bar>
         <ul class="goods-list">
             <li ref='goodsItem' class="goodsItem" v-for="(item, index) in listInfo" :key='item.id'>
                 <div class="itemContainer" ref='itemContainer' @touchstart='touchstart($event,index)' @touchmove='touchmove($event,index)' @touchend='touchend($event,index)'>
                     <div class="left">
-                        <input type="checkbox" :value='index' v-model='checkedBoxList'>
-                        <span class='border' @click='handleChecked(index)'>
+                        <input type="checkbox" :value='item.id' v-model='checkedBoxList'>
+                        <span class='border' @click='handleChecked(item.id)'>
                             <i></i>
                         </span>
                     </div>
                     <div class="imgbox">
-                        <img src="http://dummyimage.com/'64x64'/b7ef7c" alt="">
+                        <img :src="item.src" alt="">
                     </div>
                         <div class="goodsname">
                             <p class="name">{{item.shopName}}</p>
                             <p class="price">{{item.shopPrice}}</p>
                             <div class="spinner">
                                 <span class='border' @click="reduce(index)">-</span>
-                                <input type="text" name="" @keyup='handleChange(index,$event)' v-model='item.shopCount' @blur='blurChange(index,$event)'>
+                                <input type="text" name="" @input='handleChange(index,$event)' v-model='item.shopCount' @blur='blurChange(index,$event)'>
                                 <span class='border' @click="add(index)">+</span>
                             </div>
                         </div>
                     </div>
                     <div class="deletebox" ref='deletebox'>
-                        <span>删除</span>
+                        <span @click='deleate(item)'>删除</span>
                     </div>
             </li>
         </ul>
+        <div slot='bottom' class="bottom" v-if="deleteAll">
+            <div class="left" @click='checkedAllGoods'>
+                <input type="checkbox" checked value="1" v-model='checkedAll'>
+                <span class='border'>
+                    <i></i>
+                </span>
+                <b>全选</b>
+            </div>
+            <div class="right">
+                <div class="totalPrice">
+                    <span>合计：</span>
+                    <b>￥{{totalPrice}}</b>
+                </div>
+                <span class="goAccount">结算</span>
+            </div>
+        </div>
+        <div slot='bottom' class="bottom" v-else>
+            <div class="left" @click='checkedAllGoods'>
+                <input type="checkbox" checked value="1" v-model='checkedAll'>
+                <span class='border'>
+                    <i></i>
+                </span>
+                <b>全选</b>
+            </div>
+            <div class="right">
+                <span class="goAccount" @click='deleteAllGoods'>删除</span>
+            </div>
+        </div>
         <tab-bar slot='tabbar' :selectedCart='true'></tab-bar>
     </yd-layout>
 </template>
@@ -35,6 +63,8 @@
 import naverBar from "@/components/common/naverBar";
 import tabBar from "@/components/common/tabBar";
 import Bscroll from 'better-scroll';
+import { Calculate } from '@/base/js/calculate';
+import { cartsGoods } from '@/mock/mockData';
 
 export default {
     name: 'carts',
@@ -42,13 +72,16 @@ export default {
         return {
             edit: "edit",
             checkedBoxList: [],
-            listInfo: [
-                { id: 1, shopName: "男装1", shopPrice: 1000, shopCount: 0 },
-                { id: 2, shopName: "男装2", shopPrice: 2000, shopCount: 0 },
-                { id: 3, shopName: "男装3", shopPrice: 3000, shopCount: 0 },
-                { id: 4, shopName: "男装4", shopPrice: 4000, shopCount: 0 },
-                { id: 5, shopName: "男装5", shopPrice: 5000, shopCount: 0 },
-            ],
+            //全选
+            // checkedAll: false,
+            // listInfo: [
+            //     { id: 1, shopName: "男装1", shopPrice: 10, shopCount: 1 },
+            //     { id: 2, shopName: "男装2", shopPrice: 20, shopCount: 1 },
+            //     { id: 3, shopName: "男装3", shopPrice: 30, shopCount: 1 },
+            //     { id: 4, shopName: "男装4", shopPrice: 40, shopCount: 1 },
+            //     { id: 5, shopName: "男装5", shopPrice: 50, shopCount: 1 },
+            // ],
+            listInfo: [],
             //水平移动的距离
             horizontalX: 0,
             //垂直移动的距离
@@ -58,17 +91,44 @@ export default {
             //目标对象的位置
             emitPostion: 0,
             //删除按钮的宽度
-            buttonWidth: 0
+            buttonWidth: 0,
+            //全选删除
+            deleteAll: true,
         }
     },
     components: { naverBar, tabBar },
+    created() {
+        this.Calculate = Calculate;
+        this.listInfo = cartsGoods.cartsGoods;
+    },
     mounted() {
+
         let scroll = document.getElementById('scrollView');
         this.overflowScroll(scroll);
         //获取删除按钮的宽度
         this.buttonWidth = this.$refs.deletebox[0].getBoundingClientRect().width;
     },
     methods: {
+        changeDelete(index) {
+            this.deleteAll = !this.deleteAll;
+            this.checkedBoxList = [];
+        },
+        deleteAllGoods() {
+            this.$dialog.confirm({
+                title: '信息',
+                mes: `您确定要删除这${this.checkedBoxList.length}件商品嘛？`,
+                opts: () => {
+                    let checkDeleteGoods = this.listInfo.filter(vaule => !this.checkedBoxList.includes(vaule.id));
+                    this.listInfo = checkDeleteGoods;
+                    this.checkedBoxList = [];
+                    this.$dialog.toast({
+                        mes: '删除成功',
+                        timeout: 1500,
+                        icon: 'success'
+                    });
+                }
+            });
+        },
         handleChecked(value) {
             if (this.checkedBoxList.includes(value)) {
                 let index = this.checkedBoxList.findIndex(item => item === value);
@@ -97,15 +157,18 @@ export default {
         blurChange(index, e) {
             if (e.target.value.length < 1) {
                 this.listInfo[index].shopCount = 1;
-            }
-            if (e.target.value.length == 1) {
-                this.listInfo[index].shopCount = e.target.value.replace(/[^1-9]/g, '')
             } else {
-                this.listInfo[index].shopCount = e.target.value.replace(/\D/g, '')
+                if (e.target.value.length == 1) {
+                    this.listInfo[index].shopCount = e.target.value.replace(/[^1-9]/g, '')
+                } else {
+                    this.listInfo[index].shopCount = e.target.value.replace(/\D/g, '')
+                }
             }
+
         },
         touchstart(e, index) {
             e = e || event;
+            //记录初始位置X
             //记录初始位置X
             this.horizontalX = e.targetTouches[0].pageX;
             //记录初始位置Y
@@ -128,7 +191,6 @@ export default {
                         this.calculateDirection(e);
                         break;
                     case 1:
-                        e.preventDefault();
                         // 水平滑动距离
                         this.moveX = e.targetTouches[0].pageX;
                         this.X = this.moveX - this.horizontalX;
@@ -203,6 +265,50 @@ export default {
             } else {
                 this.direction = 2;
             }
+        },
+        deleate(item) {
+            this.$dialog.confirm({
+                title: '信息',
+                mes: '您确定要删除嘛？',
+                opts: () => {
+                    let listInfoIndex = this.listInfo.findIndex(value => value.id === item.id);
+                    let checkedIndex = this.checkedBoxList.findIndex(value => value === item.id);
+                    this.listInfo.splice(listInfoIndex, 1);
+                    checkedIndex >= 0 ? this.checkedBoxList.splice(checkedIndex, 1) : "";
+                    this.$dialog.toast({
+                        mes: '删除成功',
+                        timeout: 1500,
+                        icon: 'success'
+                    });
+                }
+            });
+        },
+        checkedAllGoods() {
+            if (this.checkedAll) {
+                this.checkedBoxList = [];
+            } else {
+                this.listInfo.forEach((item, index) => {
+                    if (!this.checkedBoxList.includes(item.id)) {
+                        this.checkedBoxList.push(item.id)
+                    }
+                });
+            }
+        },
+    },
+    computed: {
+        checkedAll: {
+            get() {
+                return this.checkedBoxList.length === 0 ? false : this.checkedBoxList.length === this.listInfo.length;
+            },
+            set(newValue) {}
+        },
+        totalPrice() {
+            let checkGoods = this.listInfo.filter(vaule => this.checkedBoxList.includes(vaule.id));
+            let total = 0;
+            checkGoods.forEach((item) => {
+                total = this.Calculate.accAdd(this.Calculate.accMul(item.shopPrice, item.shopCount), total);
+            })
+            return total;
         }
     }
 
@@ -334,11 +440,12 @@ export default {
 
         .deletebox {
             width: 1.6rem;
-            height: 99%;
+            height: 98%;
             background: #AE2309;
             text-align: center;
             float: right;
             margin-right: 1px;
+            margin-top: 1px;
 
             span {
                 display: block;
@@ -350,6 +457,89 @@ export default {
             }
         }
 
+    }
+}
+
+.bottom {
+    height: 0.96rem;
+    margin: 0 0.24rem;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.18rem;
+
+    .left {
+        display: flex;
+        align-items: center;
+        margin-left: 0.32rem;
+
+        input[type='checkbox'] {
+            display: none;
+        }
+
+        b {
+            font-size: 0.32rem;
+            color: #351009;
+            margin-left: 0.28rem;
+        }
+
+        input[type='checkbox']+span {
+            position: relative;
+            width: 0.32rem;
+            height: 0.32rem;
+            display: block;
+
+            i {
+                display: block;
+                width: 0.12rem;
+                height: 0.24rem;
+                border: 2px solid #fff;
+                border-left: none;
+                border-top: none;
+                transform: translate(-50%, -50%) rotate(45deg) scale(0);
+                position: absolute;
+                left: 50%;
+                top: 45%;
+            }
+        }
+
+        input[type='checkbox']:checked+span {
+            i {
+                border-color: #AE2309;
+                transform: translate(-50%, -50%) rotate(45deg) scale(1);
+                transition: all 0.3s;
+            }
+        }
+    }
+
+    .right {
+        display: flex;
+        align-items: center;
+
+        .totalPrice {
+            display: flex;
+            font-size: 16px;
+            margin-right: 0.48rem;
+
+            span {
+                color: #351009;
+            }
+
+            b {
+                color: #AE2309;
+            }
+        }
+
+        .goAccount {
+            width: 1.76rem;
+            height: inherit;
+            background: #AE2309;
+            font-size: 0.32rem;
+            color: #fff;
+            text-align: center;
+            line-height: 0.96rem;
+        }
     }
 }
 

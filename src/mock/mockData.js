@@ -37,6 +37,15 @@ export const listData = Mock.mock({
         'name': "@ctitle(8,12)"
     }]
 })
+export const cartsGoods = Mock.mock({
+    'cartsGoods|10': [{
+        'id|+1': 1,
+        'shopCount|1-5':1,
+        'shopName': "@ctitle(8,24)",
+        "src": "@image('145x145',#b7ef7c)",
+        "shopPrice|100-400.1-2": 100,
+    }]
+})
 export const menuData = Mock.mock({
     'menu|26': [{
         'name': "@ctitle(4,8)",
