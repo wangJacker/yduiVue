@@ -2,31 +2,36 @@
     <yd-layout>
         <naver-bar slot='navbar' :showIcon='edit' @changeDelete='changeDelete'></naver-bar>
         <ul class="goods-list">
-            <li ref='goodsItem' class="goodsItem" v-for="(item, index) in listInfo" :key='item.id'>
-                <div class="itemContainer" ref='itemContainer' @touchstart='touchstart($event,index)' @touchmove='touchmove($event,index)' @touchend='touchend($event,index)'>
-                    <div class="left">
-                        <input type="checkbox" :value='item.id' v-model='checkedBoxList'>
-                        <span class='border' @click='handleChecked(item.id)'>
+            <template v-if='!hasNoGoods'>
+                <li ref='goodsItem' class="goodsItem" v-for="(item, index) in listInfo" :key='item.id'>
+                    <div class="itemContainer" ref='itemContainer' @touchstart='touchstart($event,index)' @touchmove='touchmove($event,index)' @touchend='touchend($event,index)'>
+                        <div class="left">
+                            <input type="checkbox" :value='item.id' v-model='checkedBoxList'>
+                            <span class='border' @click='handleChecked(item.id)'>
                             <i></i>
                         </span>
+                        </div>
+                        <div class="imgbox">
+                            <img :src="item.src" alt="">
                     </div>
-                    <div class="imgbox">
-                        <img :src="item.src" alt="">
-                    </div>
-                        <div class="goodsname">
-                            <p class="name">{{item.shopName}}</p>
-                            <p class="price">{{item.shopPrice}}</p>
-                            <div class="spinner">
-                                <span class='border' @click="reduce(index)">-</span>
-                                <input type="text" name="" @input='handleChange(index,$event)' v-model='item.shopCount' @blur='blurChange(index,$event)'>
-                                <span class='border' @click="add(index)">+</span>
+                            <div class="goodsname">
+                                <p class="name">{{item.shopName}}</p>
+                                <p class="price">{{item.shopPrice}}</p>
+                                <div class="spinner">
+                                    <span class='border' @click="reduce(index)">-</span>
+                                    <input type="text" name="" @input='handleChange(index,$event)' v-model='item.shopCount' @blur='blurChange(index,$event)'>
+                                    <span class='border' @click="add(index)">+</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="deletebox" ref='deletebox'>
-                        <span @click='deleate(item)'>删除</span>
-                    </div>
-            </li>
+                        <div class="deletebox" ref='deletebox'>
+                            <span @click='deleate(item)'>删除</span>
+                        </div>
+                </li>
+            </template>
+            <template v-else>
+                <li class="hasNoGoods">没有更多商品...</li>
+            </template>
         </ul>
         <div slot='bottom' class="bottom" v-if="deleteAll">
             <div class="left" @click='checkedAllGoods'>
@@ -114,6 +119,19 @@ export default {
             this.checkedBoxList = [];
         },
         deleteAllGoods() {
+            if (!this.checkedBoxList.length && this.listInfo.length) {
+                this.$dialog.notify({
+                    mes: '请选择要删除的商品！！',
+                    timeout: 3000,
+                });
+                return false;
+            } else if (!this.checkedBoxList.length && !this.listInfo.length) {
+                this.$dialog.notify({
+                    mes: '购物车内没有商品可以删除！！',
+                    timeout: 3000,
+                });
+                return false;
+            }
             this.$dialog.confirm({
                 title: '信息',
                 mes: `您确定要删除这${this.checkedBoxList.length}件商品嘛？`,
@@ -309,6 +327,9 @@ export default {
                 total = this.Calculate.accAdd(this.Calculate.accMul(item.shopPrice, item.shopCount), total);
             })
             return total;
+        },
+        hasNoGoods() {
+            return this.listInfo.length ? false : true;
         }
     }
 
@@ -457,6 +478,13 @@ export default {
             }
         }
 
+    }
+
+    .hasNoGoods {
+        text-align: center;
+        padding-top: 3rem;
+        font-size: 0.24rem;
+        color: #9F8D89;
     }
 }
 
